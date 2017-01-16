@@ -1,8 +1,6 @@
-//import a few packages
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Scanner;
-import java.util.TreeSet;
 import java.io.File;
 import java.io.FileNotFoundException;
 
@@ -19,7 +17,7 @@ public class Assemble {
 		boolean solved = false;
 
 		String solution = "";
-		TreeSet<String> kmers = new TreeSet<String>();
+		ArrayList<String> kmers = new ArrayList<String>();
 
 		while (!solved) {
 			kmers = makeKmer(k, SHORT_READS);
@@ -32,8 +30,7 @@ public class Assemble {
 				k--;
 		}
 
-		// the following block of code prints out the solution and provides code
-		// to compare program's solution and a string
+		// prints out the solution and compare program's solution and a string
 		System.out.println(solution);
 		String givenSequence = "GCTAATACGGAGGCTAGCGCCTTTGTGCATGCAGGGGGCCCCAGAAGTGATGATCTCTGGTAGCTAGATCCAATCCAACCTGCTTCGTATTGCTAGCTCTGATTTGTAACACACGGTCGTGTCGATGTTTTTAGAAGCGTATCGCTCTAGGACCTAATCAGGTACCCCATCCACGGGCCGGTCCATAACCCGGCTTGGCTGCAAACCCGTTCACCTAAGGCCTGTAACTTTGAATTATAGTTAAAGTTACACCTTGGCCATCTAGGGGTCTATTGATATTGAGATAGACAAGGCAACCTAGGTATTCGTTGTACCCTTAGACTGCTCACGCGCGGGGCAAACGTAGTCACCCCGATTGCCGATGTTGAGCACCGAGCTCTCTAAGCGTGCCCAGATGACGCATGCGCGTAGTTTCAGGCCCGCCGGGAGTACTCCCAACTGTACTAGGCGATTTTGAAATAAGACAAATCAATAGCTGAAACACGTGAATCGACGTGGGTCGCTTCGTTACCCGCAGAAATATTGAATCCTCATCAGTCGTGACATGCATGTGCGACTTTGGGTCCCTTTTTGACTTAAGTATTAAACATATCCCGTCATTGAATCAACGGTTGTTTCACACCATCCTGCATTTATGAACTGTGTCATAGCATAAGCGACAGCAACGTTGACATCTTCGGATTCCTAGGTCGGCCGACCTGCCGGATATGACATGAGGACCACAGATGTGTTATGTTTCCAGTCGCTCCCTTCTGCTACGAAGAGACGCGCGCCTTCGCTTAGCAAGTCCCCGTAATTCCACTCTACCGACTATCTCCCCGAGCACAACCTGTTGGGTACCCAGGACCCGCAGATCGCCTGGCAACGTACGGGCCGCATTAGCATTGTTTTCCACTGTCCGCCCCGGTACCCAATCTTTCTATGATTCAAAGGATCAGAAAGACTATAAGAGTTCGAGTTGCTGGATTCTTTCTGCAAGTTGTTTTGAAAGTGTACGAAATCATAGGTAGACTTTGTCCGAATGCAATCGACTTTAGCGATACGTGAGCTCGAGTTCCCGTAACTGCGCGGACTCCTGGTTATAGTGCGTGATCACACGCGACTGAACATATCTGCATCACTCGAAAGTCCCCGACACGAGCGGCATTGGGAACCTGCTGGGGCTAAACGCAATGCTTTCAAGCGCCATCCTCCGCACCCGTTAACGCAGAGTACACATCGGTAGGACTTTCATGCGGGACGAAACAACAAGTGGCACACATTCGGGAGAGACTCGGCGTACTGAAACCTCATCTCCAACAGGACCGTTAATATCATGCTCACATGTCGTATATACGGGGTATGTCTATAGTACATCACGGTGCCCGTAATTCCGTACGGGCTCGAATAGATTGCCCCTTTGCCCTTACTGAACGGTAACTGACAGGCGTCCGTGAAACACTTTTGCAATGCCACGTAGAAGTGGCTAGATCGAAAAGCGTTAAGCTGTGGCATTATGTTATGACCCGGGTGTGGATTTTGACCTGATCCACCATGCCGACAGTCAGCCCAGGGCGCTTCCAGTGGAACAAAGAGGCGTGCTGTCCCGCCGAGCATCAGGCGCTTCCAGCCGTAGCGAACTCGACCGATTCAGACGAGTACCCATCGATGTTTGATGATCTGGTTTTCCTATCATAATCGTGCTGGACGGCCTTAACAATACTACGACGGATCGTTAGCGAGCTAGACCGCTACTCGTGTCGTCAAGCGGAAATTATGGTCCGAACACTCGATGCGAGAGGGAGAAAATGGGCATCGTCCTCCGGTAAGCCGAGGCCCAAGCTGAGCGGCTCAGCGCGGGCTGTTCTGAGGATCCAACGTCGCCCCATCTTTCTTAAAATGTAACTAGGTTGATTGTGTAAAGGTCCTCTCTAATATGTTCACTATGCCGAGCTATCAGGGTGAAACGTCCACGTTCCCTGCTGTGCTTTCCTGGGGACCACGGATCCAACGGGAAACCT";
 		if (solution.equals(givenSequence))
@@ -41,7 +38,7 @@ public class Assemble {
 		else
 			System.out.println("givenSequence String does not match answer arrived at through algorithm");
 		
-		System.out.println(System.currentTimeMillis()-startTime);
+		// System.out.println(System.currentTimeMillis()-startTime);
 
 	}
 
@@ -96,9 +93,9 @@ public class Assemble {
 	}
 
 	// method called every time new, smaller kmers need to be made
-	public static TreeSet<String> makeKmer(int k, LinkedList<String> readsList) {
+	public static ArrayList<String> makeKmer(int k, LinkedList<String> readsList) {
 		// initialize ArrayList that needs to be returned
-		TreeSet<String> newList = new TreeSet<String>();
+		ArrayList<String> newList = new ArrayList<String>();
 		// iterates through length of main method's "SHORT+READS"
 		for (int i = 0; i < readsList.size(); i++) {
 			// get String of a short read
@@ -111,37 +108,32 @@ public class Assemble {
 					newList.add(toAdd);
 			}
 		}
+		//System.out.println("my list of kmers is x long: " + newList.size());
 		return newList;
 	}
 
+
 	// method called each time new, smaller kmers are made. This contains the
 	// core logic for finding a path through kmers
-	public static String attemptAssembly(int k, TreeSet<String> kmers) {
+	public static String attemptAssembly(int k, ArrayList<String> kmers) {
+
 		// attempt is the value that gets returned. It gets its start from the
 		// (arbitrarily chosen) first entry in the kmers ArrayList
-		
-		
-		String attempt = kmers.first();
-		kmers.remove(attempt);
-		
-		// the string has been added to the attempt, so it is removed from kmers
-		
-		//kmers.remove(0);
+		String attempt = kmers.get(0);
+		kmers.remove(0);
 
-		// boolean value that starts out as true but is changed to false as soon
-		// as the loop is entered. This control is based on the idea that (since
-		// the loop looks to add to both the front and back of the path within
-		// the same loop) if a match isn't found the first time, the attempt is
-		// guaranteed to fail on continued attempts. So the loop is told to end
+		// sentinel value changed to false as soon as the loop is entered. This control is based on the idea that (since
+		// the loop looks to add to both the front and back of the path within the same loop) if a match isn't found
+		// the first time, the attempt is guaranteed to fail on continued attempts. So the loop is told to end
 		// every time UNLESS a match is found each time
 		boolean solving = true;
 
 		while (solving) {
 			solving = false;
 
-			String toRemove = null;
+			String toRemove;
 			
-
+			/**
 			for (String toAdd : kmers)
 			{
 				String suffixBack = toAdd.substring(0, k-1);
@@ -167,11 +159,9 @@ public class Assemble {
 			{
 				kmers.remove(toRemove);
 			}		
+			**/
 			
-			
-			/**
-			
-			// loop that iterates through the size of kmers
+			// loop that iterates through kmers
 			for (int j = 0; j < kmers.size(); j++) {
 				// the following code inside the if statement looks to add
 				// to the right (or "back") side of the attempt String.
@@ -219,7 +209,7 @@ public class Assemble {
 						solving = true;
 					}
 				}
-			}**/
+			}
 		}
 		return attempt;
 	}
