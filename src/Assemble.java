@@ -12,7 +12,8 @@ public class Assemble {
 	
 	public static void main(String[] args) {
 
-				
+		System.out.println("test commit");
+
 		LinkedList<String> SHORT_READS = getReadsFromFile();
 
 		int k = findFirstK(SHORT_READS);
