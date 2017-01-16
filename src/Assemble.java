@@ -1,13 +1,13 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Scanner;
-import java.io.File;
-import java.io.FileNotFoundException;
 
 public class Assemble {
 
-	static long startTime;
-	
+	private static long startTime;
+
 	public static void main(String[] args) {
 
 		LinkedList<String> SHORT_READS = getReadsFromFile();
@@ -17,13 +17,13 @@ public class Assemble {
 		boolean solved = false;
 
 		String solution = "";
-		ArrayList<String> kmers = new ArrayList<String>();
+		ArrayList<String> kmers;
 
 		while (!solved) {
 			kmers = makeKmer(k, SHORT_READS);
-			
+
 			solution = attemptAssembly(k, kmers);
-			
+
 			if (kmers.isEmpty())
 				solved = true;
 			else
@@ -37,14 +37,14 @@ public class Assemble {
 			System.out.println("matches givenSequence");
 		else
 			System.out.println("givenSequence String does not match answer arrived at through algorithm");
-		
-		// System.out.println(System.currentTimeMillis()-startTime);
+
+		System.out.println(System.currentTimeMillis() - startTime);
 
 	}
 
-	public static LinkedList<String> getReadsFromFile() {
+	private static LinkedList<String> getReadsFromFile() {
 
-		LinkedList<String> listOfReads = new LinkedList<String>();
+		LinkedList<String> listOfReads = new LinkedList<>();
 
 		// Scanner object to get user input
 		Scanner scnr = new Scanner(System.in);
@@ -58,7 +58,7 @@ public class Assemble {
 			System.out.println("e.g. reads.txt");
 			System.out.println();
 			String fileName = scnr.nextLine();
-			
+
 			startTime = System.currentTimeMillis();
 
 			File file = new File(fileName);
@@ -78,28 +78,28 @@ public class Assemble {
 
 	// method called once at start to find the largest k that would allow kmers
 	// of the same size
-	public static int findFirstK(LinkedList<String> reads) {
-		// sets k the the length of the first read in the given ArrayList
+	// TODO: do I really need kmers of the same size? In practice you could get different read lengths(?)
+	private static int findFirstK(LinkedList<String> reads) {
+		// sets k the length of the first read in the given ArrayList
 		int k = reads.get(0).length();
 		// k gets compared against all Strings in given ArrayList
-		for (int i = 0; i < reads.size(); i++) {
-			if (k > reads.get(i).length()) {
+		for (String read : reads) {
+			if (k > read.length()) {
 				// if k is larger than a String in ArrayList, k gets set to the
 				// length of that smaller String
-				k = reads.get(i).length();
+				k = read.length();
 			}
 		}
 		return k;
 	}
 
 	// method called every time new, smaller kmers need to be made
-	public static ArrayList<String> makeKmer(int k, LinkedList<String> readsList) {
+	private static ArrayList<String> makeKmer(int k, LinkedList<String> readsList) {
 		// initialize ArrayList that needs to be returned
-		ArrayList<String> newList = new ArrayList<String>();
+		ArrayList<String> newList = new ArrayList<>();
 		// iterates through length of main method's "SHORT+READS"
-		for (int i = 0; i < readsList.size(); i++) {
-			// get String of a short read
-			String read = readsList.get(i);
+
+		for (String read : readsList) {
 			// nested for loop to get all the kmers out of short read
 			for (int j = 0; j + k <= read.length(); j++) {
 				String toAdd = read.substring(j, j + k);
@@ -115,7 +115,7 @@ public class Assemble {
 
 	// method called each time new, smaller kmers are made. This contains the
 	// core logic for finding a path through kmers
-	public static String attemptAssembly(int k, ArrayList<String> kmers) {
+	private static String attemptAssembly(int k, ArrayList<String> kmers) {
 
 		// attempt is the value that gets returned. It gets its start from the
 		// (arbitrarily chosen) first entry in the kmers ArrayList
@@ -131,36 +131,6 @@ public class Assemble {
 		while (solving) {
 			solving = false;
 
-			String toRemove;
-			
-			/**
-			for (String toAdd : kmers)
-			{
-				String suffixBack = toAdd.substring(0, k-1);
-				String prefixBack = attempt.substring(attempt.length()-k+1);
-				if (suffixBack.equals(prefixBack))
-				{
-					attempt += toAdd.substring(k-1, k);
-					solving = true;
-					toRemove = toAdd;
-				}
-				
-				String prefixFront = toAdd.substring(1, k);
-				String suffixFront = attempt.substring(0,k-1);
-				if (prefixFront.equals(suffixFront))
-				{
-					attempt = toAdd.charAt(0) + attempt;
-					solving = true;
-					toRemove = toAdd;
-				}
-			}
-
-			if (solving)
-			{
-				kmers.remove(toRemove);
-			}		
-			**/
-			
 			// loop that iterates through kmers
 			for (int j = 0; j < kmers.size(); j++) {
 				// the following code inside the if statement looks to add
