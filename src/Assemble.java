@@ -1,23 +1,27 @@
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Scanner;
+import java.util.List;
 
 public class Assemble {
 
-	private static long startTime;
-
 	public static void main(String[] args) {
 
-		LinkedList<String> SHORT_READS = getReadsFromFile();
+		long startTime = System.currentTimeMillis();
+
+		if (args.length < 1 || args.length > 3) {
+			System.out.println("Usage: reads.txt output.txt debug_test.txt (optional)");
+		}
+
+		List<String> SHORT_READS = getReadsFromFile(args[0]);
 
 		int k = findFirstK(SHORT_READS);
 
 		boolean solved = false;
-
 		String solution = "";
-		ArrayList<String> kmers;
+		List<String> kmers;
 
 		while (!solved) {
 			kmers = makeKmer(k, SHORT_READS);
@@ -32,6 +36,7 @@ public class Assemble {
 
 		// prints out the solution and compare program's solution and a string
 		System.out.println(solution);
+		// TODO: pull givenSequence from a debugging file rather than giving it here.
 		String givenSequence = "GCTAATACGGAGGCTAGCGCCTTTGTGCATGCAGGGGGCCCCAGAAGTGATGATCTCTGGTAGCTAGATCCAATCCAACCTGCTTCGTATTGCTAGCTCTGATTTGTAACACACGGTCGTGTCGATGTTTTTAGAAGCGTATCGCTCTAGGACCTAATCAGGTACCCCATCCACGGGCCGGTCCATAACCCGGCTTGGCTGCAAACCCGTTCACCTAAGGCCTGTAACTTTGAATTATAGTTAAAGTTACACCTTGGCCATCTAGGGGTCTATTGATATTGAGATAGACAAGGCAACCTAGGTATTCGTTGTACCCTTAGACTGCTCACGCGCGGGGCAAACGTAGTCACCCCGATTGCCGATGTTGAGCACCGAGCTCTCTAAGCGTGCCCAGATGACGCATGCGCGTAGTTTCAGGCCCGCCGGGAGTACTCCCAACTGTACTAGGCGATTTTGAAATAAGACAAATCAATAGCTGAAACACGTGAATCGACGTGGGTCGCTTCGTTACCCGCAGAAATATTGAATCCTCATCAGTCGTGACATGCATGTGCGACTTTGGGTCCCTTTTTGACTTAAGTATTAAACATATCCCGTCATTGAATCAACGGTTGTTTCACACCATCCTGCATTTATGAACTGTGTCATAGCATAAGCGACAGCAACGTTGACATCTTCGGATTCCTAGGTCGGCCGACCTGCCGGATATGACATGAGGACCACAGATGTGTTATGTTTCCAGTCGCTCCCTTCTGCTACGAAGAGACGCGCGCCTTCGCTTAGCAAGTCCCCGTAATTCCACTCTACCGACTATCTCCCCGAGCACAACCTGTTGGGTACCCAGGACCCGCAGATCGCCTGGCAACGTACGGGCCGCATTAGCATTGTTTTCCACTGTCCGCCCCGGTACCCAATCTTTCTATGATTCAAAGGATCAGAAAGACTATAAGAGTTCGAGTTGCTGGATTCTTTCTGCAAGTTGTTTTGAAAGTGTACGAAATCATAGGTAGACTTTGTCCGAATGCAATCGACTTTAGCGATACGTGAGCTCGAGTTCCCGTAACTGCGCGGACTCCTGGTTATAGTGCGTGATCACACGCGACTGAACATATCTGCATCACTCGAAAGTCCCCGACACGAGCGGCATTGGGAACCTGCTGGGGCTAAACGCAATGCTTTCAAGCGCCATCCTCCGCACCCGTTAACGCAGAGTACACATCGGTAGGACTTTCATGCGGGACGAAACAACAAGTGGCACACATTCGGGAGAGACTCGGCGTACTGAAACCTCATCTCCAACAGGACCGTTAATATCATGCTCACATGTCGTATATACGGGGTATGTCTATAGTACATCACGGTGCCCGTAATTCCGTACGGGCTCGAATAGATTGCCCCTTTGCCCTTACTGAACGGTAACTGACAGGCGTCCGTGAAACACTTTTGCAATGCCACGTAGAAGTGGCTAGATCGAAAAGCGTTAAGCTGTGGCATTATGTTATGACCCGGGTGTGGATTTTGACCTGATCCACCATGCCGACAGTCAGCCCAGGGCGCTTCCAGTGGAACAAAGAGGCGTGCTGTCCCGCCGAGCATCAGGCGCTTCCAGCCGTAGCGAACTCGACCGATTCAGACGAGTACCCATCGATGTTTGATGATCTGGTTTTCCTATCATAATCGTGCTGGACGGCCTTAACAATACTACGACGGATCGTTAGCGAGCTAGACCGCTACTCGTGTCGTCAAGCGGAAATTATGGTCCGAACACTCGATGCGAGAGGGAGAAAATGGGCATCGTCCTCCGGTAAGCCGAGGCCCAAGCTGAGCGGCTCAGCGCGGGCTGTTCTGAGGATCCAACGTCGCCCCATCTTTCTTAAAATGTAACTAGGTTGATTGTGTAAAGGTCCTCTCTAATATGTTCACTATGCCGAGCTATCAGGGTGAAACGTCCACGTTCCCTGCTGTGCTTTCCTGGGGACCACGGATCCAACGGGAAACCT";
 		if (solution.equals(givenSequence))
 			System.out.println("matches givenSequence");
@@ -42,44 +47,22 @@ public class Assemble {
 
 	}
 
-	private static LinkedList<String> getReadsFromFile() {
-
+	private static List<String> getReadsFromFile(String fileName) {
 		LinkedList<String> listOfReads = new LinkedList<>();
-
-		// Scanner object to get user input
-		Scanner scnr = new Scanner(System.in);
-
-		// following try/catch block asks for user input, gets file, skips first
-		// line, reads rest into listOfReads
-		try {
-			System.out.println("Note: first line in file is skipped.");
-			System.out
-					.println ("Enter name of file in same directory as java file: ");
-			System.out.println("e.g. reads.txt");
-			System.out.println();
-			String fileName = scnr.nextLine();
-
-			startTime = System.currentTimeMillis();
-
-			File file = new File(fileName);
-			Scanner fileReader = new Scanner(file);
-			fileReader.nextLine();
-			while (fileReader.hasNext())
-				listOfReads.add(fileReader.nextLine());
-			fileReader.close();
-		} catch (FileNotFoundException e) {
-			System.out.println("Cannot find File");
-			scnr.close();
+		try (BufferedReader readsFile = new BufferedReader(new FileReader(fileName))) {
+			while(readsFile.ready())
+				listOfReads.add(readsFile.readLine());
+		} catch (IOException e) {
+			System.out.println("Cannot find reads file");
 			System.exit(0);
 		}
-		scnr.close();
 		return listOfReads;
 	}
 
 	// method called once at start to find the largest k that would allow kmers
 	// of the same size
 	// TODO: do I really need kmers of the same size? In practice you could get different read lengths(?)
-	private static int findFirstK(LinkedList<String> reads) {
+	private static int findFirstK(List<String> reads) {
 		// sets k the length of the first read in the given ArrayList
 		int k = reads.get(0).length();
 		// k gets compared against all Strings in given ArrayList
@@ -94,12 +77,12 @@ public class Assemble {
 	}
 
 	// method called every time new, smaller kmers need to be made
-	private static ArrayList<String> makeKmer(int k, LinkedList<String> readsList) {
+	private static List<String> makeKmer(int k, List<String> SHORT_READS) {
 		// initialize ArrayList that needs to be returned
-		ArrayList<String> newList = new ArrayList<>();
-		// iterates through length of main method's "SHORT+READS"
+		List<String> newList = new ArrayList<>();
+		// iterates through all of main method's "SHORT_READS"
 
-		for (String read : readsList) {
+		for (String read : SHORT_READS) {
 			// nested for loop to get all the kmers out of short read
 			for (int j = 0; j + k <= read.length(); j++) {
 				String toAdd = read.substring(j, j + k);
@@ -108,14 +91,13 @@ public class Assemble {
 					newList.add(toAdd);
 			}
 		}
-		//System.out.println("my list of kmers is x long: " + newList.size());
 		return newList;
 	}
 
 
 	// method called each time new, smaller kmers are made. This contains the
 	// core logic for finding a path through kmers
-	private static String attemptAssembly(int k, ArrayList<String> kmers) {
+	private static String attemptAssembly(int k, List<String> kmers) {
 
 		// attempt is the value that gets returned. It gets its start from the
 		// (arbitrarily chosen) first entry in the kmers ArrayList
