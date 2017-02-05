@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,7 +13,7 @@ public class Assemble {
 			System.out.println("Usage: reads.txt output.txt debug_test.txt (optional)");
 		}
 
-		List<String> SHORT_READS = getReadsFromFile(args[0]);
+		final List<String> SHORT_READS = getReadsFromFile(args[0]);
 
 		int k = findFirstK(SHORT_READS);
 
@@ -34,13 +32,17 @@ public class Assemble {
 				k--;
 		}
 
-		// TODO: make file with output
+		try (BufferedWriter outputFile = new BufferedWriter(new FileWriter(args[1]))) {
+			outputFile.write(solution);
+		} catch (IOException e) {
+			System.out.println("Error creating output file");
+		}
 
 		if (args.length > 2) {// print program's solution and compare to debug answer
 			// System.out.println(solution);
-			try (BufferedReader answerFile = new BufferedReader(new FileReader(args[2]))) {
-				String debugAnswer = answerFile.readLine();
-				if (debugAnswer.equals(solution)) {
+			try (BufferedReader debugSolution = new BufferedReader(new FileReader(args[2]))) {
+				String answerCheck = debugSolution.readLine();
+				if (answerCheck.equals(solution)) {
 					System.out.println("program solution matches debug sequence");
 				} else {
 					System.out.println("program solution does not match debug sequence");
